@@ -17,3 +17,9 @@ To Do
 - [ ] Optimize GIF Creation
 - [ ] Optimize color matching
   
+More
+-------
+
+- Create Gif from low resolution Landsat Quicklook [landsat8evolution](http://remotepixel.ca/webmapping/landsat8evolution.html)
+- Search and Download Landsat data [landsat-util](https://github.com/developmentseed/landsat-util) from @developmentseed
+- Create GIF for entire Landsat image (in bash) [landsat-gifworks](https://github.com/KAPPS-/landsat-gifworks) from @KAPPS-
