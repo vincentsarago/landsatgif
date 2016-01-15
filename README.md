@@ -1,7 +1,9 @@
 # landsatgif
 Create High Resolution GIF animation From Landsat 8 images
 
-A realy simple python script to create GIF from Landsat 8 image.
+![](/img/3bd4ddee-bba3-11e5-82f7-0c4de9b59fbf.gif)
+
+A simple python script to create GIF from Landsat 8 image.
 
 Philosophy of the 'method' is to select a point (search for data) and then create an AOI (extract pixels)
 
