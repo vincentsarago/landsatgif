@@ -20,8 +20,8 @@ Depends
 To Do
 -------
 
-- [*] Create a command line version
-- [*] Test if multiple Path-Row
+- [o] Create a command line version
+- [o] Test if multiple Path-Row
 - [ ] Create a pure python version
 - [ ] Create pip distribution
 - [ ] Optimize GIF Creation
