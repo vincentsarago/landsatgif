@@ -13,7 +13,7 @@ Example
 ###### Montréal (RGB)
 ![](/img/3bd4ddee-bba3-11e5-82f7-0c4de9b59fbf.gif)
 
-###### NDIV evolution of Fields in Egypt 
+###### NDVI evolution of Fields in Egypt 
 ![](/img/48f6b50a-bfa3-11e5-9e86-c82a142be2b4.gif)
 
 Depends
