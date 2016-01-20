@@ -1,13 +1,20 @@
 # landsatgif
 Create High Resolution GIF animation From Landsat 8 images
 
-![](/img/3bd4ddee-bba3-11e5-82f7-0c4de9b59fbf.gif)
-
 A simple python script to create GIF from Landsat 8 image.
 
 Philosophy of the 'method' is to select a point (search for data) and then create an AOI (extract pixels)
 
 I'm reading data directly on Amazon Server, so date range should be set after January 1st 2015. 
+
+
+Example
+-------
+###### Montréal (RGB)
+![](/img/3bd4ddee-bba3-11e5-82f7-0c4de9b59fbf.gif)
+
+###### NDIV evolution of Fields in Egypt 
+![](/img/48f6b50a-bfa3-11e5-9e86-c82a142be2b4.gif)
 
 Depends
 -------
