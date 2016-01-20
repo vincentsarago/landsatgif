@@ -18,7 +18,7 @@ from osgeo import gdal, ogr, osr
 from shapely.wkt import loads
 
 ##########################   
-#Form Landsat-util by developmentseed.org (https://github.com/developmentseed/landsat-util)
+#From Landsat-util by developmentseed.org (https://github.com/developmentseed/landsat-util)
 def query_builder(paths_rows=None, lat=None, lon=None, start_date=None, end_date=None,
                   cloud_min=None, cloud_max=None):
     """ Builds the proper search syntax (query) for Landsat API """
