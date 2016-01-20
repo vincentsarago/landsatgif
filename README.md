@@ -9,11 +9,21 @@ Philosophy of the 'method' is to select a point (search for data) and then creat
 
 I'm reading data directly on Amazon Server, so date range should be set after January 1st 2015. 
 
+Depends
+-------
+- gdal
+- shapely
+- numpy
+- urllib2
+- skimage
+
 To Do
 -------
 
-- [ ] Create a command line version
-- [ ] Test if multiple Path-Row
+- [*] Create a command line version
+- [*] Test if multiple Path-Row
+- [ ] Create a pure python version
+- [ ] Create pip distribution
 - [ ] Optimize GIF Creation
 - [ ] Optimize color matching
   
