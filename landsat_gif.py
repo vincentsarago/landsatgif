@@ -4,6 +4,7 @@ import click
 
 import os
 import sys
+import re
 import datetime
 import urllib2
 import numpy as np
