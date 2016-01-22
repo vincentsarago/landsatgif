@@ -91,6 +91,33 @@ def lat_lon_builder(lat=0, lon=0):
             '+AND+lowerLeftCornerLongitude:[-1000+TO+%s]+AND+upperRightCornerLongitude:[%s+TO+1000]'
             % (lat, lat, lon, lon))
 
+def create_paired_list(value):
+    """ Create a list of paired items from a string.
+    :param value:
+        the format must be 003,003,004,004 (commas with no space)
+    :type value:
+        String
+    :returns:
+        List
+    :example:
+        >>> create_paired_list('003,003,004,004')
+        [['003','003'], ['004', '004']]
+    """
+
+    if isinstance(value, list):
+        value = ",".join(value)
+
+    array = re.split('\D+', value)
+
+    # Make sure the elements in the list are even and pairable
+    if len(array) % 2 == 0:
+        new_array = [list(array[i:i + 2]) for i in range(0, len(array), 2)]
+        return new_array
+    else:
+        raise ValueError('The string should include pairs and be formated. '
+                         'The format must be 003,003,004,004 (commas with '
+                         'no space)')
+
 def search(quer, limit=200):
     """ Call landsat api and return landsat scenes"""
     r = requests.get('%s?search=%s&limit=%s' % (landsat_api_url, quer, limit))
@@ -228,10 +255,12 @@ def worker(lat, lon, cloud, path_row, start_date, end_date, buffer, taskid, ndvi
     print 'landsat ids: {}'.format(", ".join(all_ids))
 
     #Check Only if ROW is the same (same date) 
+    all_pr = ['{:03d},{:03d}'.format(int(i['path']),int(i['row'])) for i in im2process]
     all_row = [i['row'] for i in im2process]
     if len(list(set(all_row))) > 1:
         print '''AOI covering more than one Row : 
-        Please choose one of the following: {}'''.format(' | '.join(list(set(all_row))))
+        Please choose one of the following: {}
+        Using --pathrow option'''.format(' | '.join(list(set(all_pr))))
         sys.exit(1)
     
     #Construct AOI  (square in WebMercator)
