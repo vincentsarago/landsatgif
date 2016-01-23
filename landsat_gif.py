@@ -5,7 +5,6 @@ import click
 import os
 import sys
 import re
-import datetime
 import urllib2
 import numpy as np
 import requests
@@ -14,6 +13,7 @@ import uuid
 import json
 import math
 import time
+from PIL import Image, ImageFont, ImageDraw
 from skimage import exposure
 from osgeo import gdal, ogr, osr
 from shapely.wkt import loads
@@ -311,6 +311,8 @@ def worker(lat, lon, cloud, path_row, start_date, end_date, buffer, taskid, ndvi
         if not os.path.exists(workdir):
             os.makedirs(workdir, 0775)
 
+        font = ImageFont.load_default().font
+        
         l8_images = []
         date_array = []        
         for ii in range(len(proc_images)):
@@ -360,7 +362,7 @@ def worker(lat, lon, cloud, path_row, start_date, end_date, buffer, taskid, ndvi
             
                 if ndvi:
                     driver = gdal.GetDriverByName("GTiff")
-                    dst_ds = driver.Create(out_im, x_size, y_size, 1, gdal.GDT_Float32)
+                    dst_ds = driver.Create(out_im, x_size, y_size, 1, gdal.GDT_Byte)
                     dst_ds.SetGeoTransform(tuple(ngeo))
                     dst_ds.SetProjection(proj)
     
@@ -373,17 +375,23 @@ def worker(lat, lon, cloud, path_row, start_date, end_date, buffer, taskid, ndvi
                     awsim4 = gdal.Open(band4_address, gdal.GA_ReadOnly)
                     arr4 = awsim4.GetRasterBand(1).ReadAsArray(x_off, y_off, x_size, y_size) 
                     arr4 = landsat_dnToReflectance_USGS(arr4, 4, meta_data)    
-    
-                    dst_ds.GetRasterBand(1).WriteArray(np.where( arr5*arr4 > 0, np.nan_to_num((arr5 - arr4) / (arr5 + arr4)), 0))
-                    dst_ds.GetRasterBand(1).SetNoDataValue(-9999)
+
+                    ratio = np.where( arr5*arr4 > 0, np.nan_to_num((arr5 - arr4) / (arr5 + arr4)), 0)
+                    dst_ds.GetRasterBand(1).WriteArray(exposure.rescale_intensity(ratio, in_range=(-1,1), out_range=(1,255)))
+                    #dst_ds.GetRasterBand(1).SetNoDataValue(0)
                     ratio = dst_ds = awsim4 = awsim5 = arr4 = arr5 = None
                     
-                    #This part can be replace in pure python (PIL)
-                    #Convert TIF in JPG and add date
+                    #Add color palette!
+                                        
+                    img = Image.open(out_im).convert('RGB')
+                    draw = ImageDraw.Draw(img)
+                    xs,ys = draw.textsize(im['date'],  font=font)
+                    draw.rectangle([ (5, 5), (xs+15, ys+15) ], fill=(255,255,255))
+                    draw.text((10, 10), im['date'], (0,0,0), font=font)
                     out_jpg = out_im.replace('.tif','.jpg')
-                    os.system('convert -font Helvetica -pointsize 30 -fill white -draw "text 20,50 \'{0}\'" {1} {2}'.format(im['date'], out_im, out_jpg))
-                    os.remove(out_im)              
-                    
+                    img.save(out_jpg)                
+                    os.remove(out_im)                
+
                 else:
                     driver = gdal.GetDriverByName("GTiff")
                     dst_ds = driver.Create(out_im, x_size, y_size, 3, gdal.GDT_Byte)
@@ -399,13 +407,16 @@ def worker(lat, lon, cloud, path_row, start_date, end_date, buffer, taskid, ndvi
                         dst_ds.GetRasterBand(b+1).SetNoDataValue(0)
                         awsim = arr = None
                     dst_ds = None    # save, close
-
-                    #This part can be replace in pure python (PIL)                
-                    #Convert TIF in JPG and add date
+              
+                    img = Image.open(out_im)
+                    draw = ImageDraw.Draw(img)
+                    xs,ys = draw.textsize(im['date'],  font=font)
+                    draw.rectangle([ (5, 5), (xs+15, ys+15) ], fill=(255,255,255))
+                    draw.text((10, 10), im['date'], (0,0,0), font=font)
                     out_jpg = out_im.replace('.tif','.jpg')
-                    os.system('convert -font Helvetica -pointsize 30 -fill white -draw "text 20,50 \'{0}\'" {1} {2}'.format(im['date'], out_im, out_jpg))
-                    os.remove(out_im) #delete TIF
-                
+                    img.save(out_jpg)                
+                    os.remove(out_im)
+                    
                 date_array.append(im['date'])
                 l8_images.append(out_jpg)
             except:
