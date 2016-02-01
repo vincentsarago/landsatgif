@@ -202,7 +202,7 @@ def cli():
 
 @click.option(
     '--cloud', type=float, default=20.,
-    help='Start date of the query in the format YYYYMMDD.')
+    help='Maximum cloud percentage (%) allowed.')
 @click.option(
     '--start_date', type=str, default='2015-01-01',
     help='Start date of the query in the format YYYY-MM-DD.')
