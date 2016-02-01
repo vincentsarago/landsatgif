@@ -131,9 +131,9 @@ def search(quer, limit=200):
         result['code'] = r_dict['error']['code']
         result['message'] = r_dict['error']['message']
 
-    elif 'meta' in r_dict:
+    elif 'info' in r_dict:
         result['status'] = u'SUCCESS'
-        result['total'] = r_dict['meta']['results']['total']
+        result['total'] = r_dict['info']['results']['total']
         result['results'] = [{'sceneID': i['sceneID'],
                               'path': '{:03d}'.format(int(i['path'])),
                               'row': '{:03d}'.format(int(i['row'])),
