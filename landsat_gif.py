@@ -255,15 +255,6 @@ def worker(lat, lon, cloud, path_row, start_date, end_date, buffer, taskid, ndvi
     print '{} Landsat scene found'.format(len(all_ids))
     print 'landsat ids: {}'.format(", ".join(all_ids))
 
-    #Check Only if ROW is the same (same date) 
-    all_pr = ['{:03d},{:03d}'.format(int(i['path']),int(i['row'])) for i in im2process]
-    all_row = [i['row'] for i in im2process]
-    if len(list(set(all_row))) > 1:
-        print '''AOI covering more than one Row : 
-        Please choose one of the following: {}
-        Using --pathrow option'''.format(' | '.join(list(set(all_pr))))
-        sys.exit(1)
-    
     #Construct AOI  (square in WebMercator)
     wgs = osr.SpatialReference()  
     wgs.ImportFromEPSG(4326)
@@ -285,7 +276,7 @@ def worker(lat, lon, cloud, path_row, start_date, end_date, buffer, taskid, ndvi
     aoi.Transform(wmTowgs) #Transform AOI in WGS84
     pt = pol = polB = None
     
-    print "Excluding Landsat 8 scene not covering the AOI"
+    print "Excluding Landsat 8 scene not covering the Entire AOI"
     proc_images = []
     for ii in range(len(im2process)):
         imgMeta = im2process[ii]
@@ -303,10 +294,20 @@ def worker(lat, lon, cloud, path_row, start_date, end_date, buffer, taskid, ndvi
             proc_images.append(imgMeta)
         
         ring = poly = None
-     
+
     if len(proc_images) == 0:
-        print 'No Image found covering the AOI - try reducing buffer size or changing lat-lon'  
+        print 'No Image found covering the AOI - change buffer size or change lat-lon'  
     else:
+
+        #Check Only if ROW is the same (same date) 
+        all_pr = ['{:03d},{:03d}'.format(int(i['path']),int(i['row'])) for i in proc_images]
+        all_row = [i['row'] for i in proc_images]
+        if len(list(set(all_row))) > 1:
+            print '''AOI covering more than one Row : 
+            Please choose one of the following: {}
+            Using --path_row option'''.format(' | '.join(list(set(all_pr))))
+            sys.exit(1)
+
         workdir = os.path.join(path, taskid)
         if not os.path.exists(workdir):
             os.makedirs(workdir, 0775)
@@ -361,11 +362,6 @@ def worker(lat, lon, cloud, path_row, start_date, end_date, buffer, taskid, ndvi
                 ngeo[3] = aoi_bounds[3]
             
                 if ndvi:
-                    driver = gdal.GetDriverByName("GTiff")
-                    dst_ds = driver.Create(out_im, x_size, y_size, 1, gdal.GDT_Byte)
-                    dst_ds.SetGeoTransform(tuple(ngeo))
-                    dst_ds.SetProjection(proj)
-    
                     band5_address = '/vsicurl/{0}_B5.TIF'.format(landsat_address)
                     awsim5 = gdal.Open(band5_address, gdal.GA_ReadOnly)
                     arr5 = awsim5.GetRasterBand(1).ReadAsArray(x_off, y_off, x_size, y_size) 
@@ -377,20 +373,17 @@ def worker(lat, lon, cloud, path_row, start_date, end_date, buffer, taskid, ndvi
                     arr4 = landsat_dnToReflectance_USGS(arr4, 4, meta_data)    
 
                     ratio = np.where( arr5*arr4 > 0, np.nan_to_num((arr5 - arr4) / (arr5 + arr4)), 0)
-                    dst_ds.GetRasterBand(1).WriteArray(exposure.rescale_intensity(ratio, in_range=(-1,1), out_range=(1,255)))
-                    #dst_ds.GetRasterBand(1).SetNoDataValue(0)
-                    ratio = dst_ds = awsim4 = awsim5 = arr4 = arr5 = None
-                    
-                    #Add color palette!
-                                        
-                    img = Image.open(out_im).convert('RGB')
+                    awsim4 = awsim5 = arr4 = arr5 = None
+
+                    #Use winter colormap (http://matplotlib.org/examples/color/colormaps_reference.html)
+                    img = Image.fromarray(np.uint8(cm.winter((ratio + 1.) / 2.) * 255)).convert('RGB')
+                    ratio = None
                     draw = ImageDraw.Draw(img)
                     xs,ys = draw.textsize(im['date'],  font=font)
                     draw.rectangle([ (5, 5), (xs+15, ys+15) ], fill=(255,255,255))
                     draw.text((10, 10), im['date'], (0,0,0), font=font)
                     out_jpg = out_im.replace('.tif','.jpg')
-                    img.save(out_jpg)                
-                    os.remove(out_im)                
+                    img.save(out_jpg)           
 
                 else:
                     driver = gdal.GetDriverByName("GTiff")
