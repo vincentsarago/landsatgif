@@ -18,6 +18,8 @@ from skimage import exposure
 from osgeo import gdal, ogr, osr
 from shapely.wkt import loads
 
+from matplotlib import cm
+
 ##########################   
 #From Landsat-util by developmentseed.org (https://github.com/developmentseed/landsat-util)
 def query_builder(paths_rows=None, lat=None, lon=None, start_date=None, end_date=None,
