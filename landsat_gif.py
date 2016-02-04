@@ -221,13 +221,10 @@ def cli():
     '--ndvi', is_flag=True,
     help='Create NDVI animation instead of RGB')
 @click.option(
-    '--aws', is_flag=True,
-    help='If you are running this code on AWS.')
-@click.option(
     '--path', type=click.Path(exists=True), default='.',
     help='Set the path where the file will be saved.')
 
-def worker(lat, lon, cloud, path_row, start_date, end_date, buffer, taskid, ndvi, path, aws):
+def worker(lat, lon, cloud, path_row, start_date, end_date, buffer, taskid, ndvi, path):
     """ Create animated GIF from landsat 8 data"""
 
     #Test 
@@ -328,10 +325,8 @@ def worker(lat, lon, cloud, path_row, start_date, end_date, buffer, taskid, ndvi
             try:
                 WRSPath = im['path']
                 WRSRow = im['row']
-                if aws:
-                    landsat_address = 's3://landsat-pds/L8/{path}/{row}/{id}/{id}'.format(path=WRSPath, row=WRSRow, id=im['sceneID'])
-                else: 
-                    landsat_address = 'http://landsat-pds.s3.amazonaws.com/L8/{path}/{row}/{id}/{id}'.format(path=WRSPath, row=WRSRow, id=im['sceneID'])
+
+                landsat_address = 'http://landsat-pds.s3.amazonaws.com/L8/{path}/{row}/{id}/{id}'.format(path=WRSPath, row=WRSRow, id=im['sceneID'])
                                        
                 meta_file = '{0}_MTL.txt'.format(landsat_address)
                 meta_data = urllib2.urlopen(meta_file).readlines()
