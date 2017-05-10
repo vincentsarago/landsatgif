@@ -130,7 +130,8 @@ def main(lat, lon, cloud, start_date, end_date, buffer_size, res, ndvi, output):
             xs,ys = draw.textsize(scene['date'],  font=font)
             draw.rectangle([ (5, 5), (xs+15, ys+15) ], fill=(255,255,255))
             draw.text((10, 10), scene['date'], (0,0,0), font=font)
-            img.save('{}.jpg'.format(scene['date']))
+            l8_images.append(img)
+            
         else:
 
             out = np.zeros((3, height, width), dtype=np.uint8)
@@ -160,8 +161,7 @@ def main(lat, lon, cloud, start_date, end_date, buffer_size, res, ndvi, output):
             xs,ys = draw.textsize(scene['date'],  font=font)
             draw.rectangle([ (5, 5), (xs+15, ys+15) ], fill=(255,255,255))
             draw.text((10, 10), scene['date'], (0,0,0), font=font)
-            img.save('{}.jpg'.format(scene['date']))
-            # l8_images.append(img)
+            l8_images.append(img)
 
     #
     # if len(l8_images) > 0:
