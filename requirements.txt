@@ -1,10 +1,11 @@
 
+click
 numpy
 pyproj
 shapely
 
 Pillow
-#matplotlib
+matplotlib
 requests
 
 rasterio[s3]>=1.0a8
